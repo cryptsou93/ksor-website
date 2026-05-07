@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "contact@ksorindustrie.com",
       to: "contact@ksorindustrie.com",
       replyTo: data.email,
       subject,
