@@ -38,6 +38,10 @@ export const metadata: Metadata = {
     canonical: "https://www.ksorindustrie.com",
     languages: { fr: "https://www.ksorindustrie.com" },
   },
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   robots: {
     index: true,
     follow: true,
