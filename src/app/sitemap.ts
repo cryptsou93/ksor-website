@@ -1,9 +1,9 @@
 import { MetadataRoute } from "next";
-import { blogPosts } from "@/lib/blog-data";
+import { getAllBlogPosts } from "@/lib/blog-data";
 
 const BASE_URL = "https://www.ksorindustrie.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -55,7 +55,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+  const allPosts = await getAllBlogPosts();
+  const blogRoutes: MetadataRoute.Sitemap = allPosts.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: "yearly",

@@ -1,3 +1,6 @@
+import { readdir, readFile } from "fs/promises";
+import path from "path";
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -117,4 +120,40 @@ export const blogPosts: BlogPost[] = [
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return blogPosts.find((post) => post.slug === slug);
+}
+
+export async function getDynamicBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const dir = path.join(process.cwd(), "public", "blog-posts");
+    const files = await readdir(dir);
+    const posts = await Promise.all(
+      files
+        .filter((f) => f.endsWith(".json"))
+        .map(async (f) => {
+          const raw = await readFile(path.join(dir, f), "utf-8");
+          return JSON.parse(raw) as BlogPost;
+        })
+    );
+    return posts.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  const dynamic = await getDynamicBlogPosts();
+  const dynamicSlugs = new Set(dynamic.map((p) => p.slug));
+  const statics = blogPosts.filter((p) => !dynamicSlugs.has(p.slug));
+  return [...dynamic, ...statics].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+}
+
+export async function getBlogPostBySlug(
+  slug: string
+): Promise<BlogPost | undefined> {
+  const dynamic = await getDynamicBlogPosts();
+  return dynamic.find((p) => p.slug === slug) ?? blogPosts.find((p) => p.slug === slug);
 }

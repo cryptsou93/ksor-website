@@ -2,19 +2,22 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Calendar, Clock, ArrowLeft, Tag, ArrowRight } from "lucide-react";
-import { blogPosts, getBlogPost } from "@/lib/blog-data";
+import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog-data";
+
+export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  const posts = await getAllBlogPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) return { title: "Article introuvable" };
   return {
     title: post.title,
@@ -39,10 +42,11 @@ function formatDate(dateStr: string) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
 
-  const otherPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 3);
+  const allPosts = await getAllBlogPosts();
+  const otherPosts = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
   const jsonLd = {
     "@context": "https://schema.org",

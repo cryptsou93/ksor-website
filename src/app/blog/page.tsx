@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
-import { blogPosts } from "@/lib/blog-data";
+import { getAllBlogPosts } from "@/lib/blog-data";
 
 export const metadata: Metadata = {
   title: {
@@ -35,8 +35,9 @@ function formatDate(dateStr: string) {
   });
 }
 
-export default function BlogPage() {
-  const [featured, ...rest] = blogPosts;
+export default async function BlogPage() {
+  const posts = await getAllBlogPosts();
+  const [featured, ...rest] = posts;
 
   return (
     <>
