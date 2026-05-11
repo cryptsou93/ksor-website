@@ -46,7 +46,20 @@ export async function POST(request: NextRequest) {
     }
     const content = decodeURIComponent(raw.substring(eqIndex + 1).replace(/\+/g, " "));
 
-    const article = extractJson(content) as Partial<BlogPost>;
+    let article: Partial<BlogPost>;
+    try {
+      article = extractJson(content) as Partial<BlogPost>;
+    } catch {
+      return NextResponse.json({
+        debug: true,
+        error: "extractJson a échoué",
+        contentStart: content.substring(0, 300),
+        contentLength: content.length,
+        firstCharCode: content.charCodeAt(0),
+        rawStart: raw.substring(0, 300),
+        eqIndex,
+      }, { status: 400 });
+    }
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
       return NextResponse.json(
