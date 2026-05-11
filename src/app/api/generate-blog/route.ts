@@ -30,17 +30,15 @@ export async function POST(request: NextRequest) {
     const raw = Buffer.from(buf).toString("utf-8");
     const contentType = request.headers.get("content-type") ?? "";
 
-    // Mode debug : pas d'auth requise, retourne le body brut pour diagnostic Make.com
-    if (raw.includes("__debug__")) {
+    // Mode debug sans auth — retourne rawBody + decoded pour inspecter Make.com
+    if (raw.includes("__debug__") || raw.trim() === "") {
+      const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
       return NextResponse.json({
         debug: true,
         contentType,
-        rawBody: raw.substring(0, 1000),
-        length: raw.length,
-        headers: {
-          "content-type": contentType,
-          authorization: request.headers.get("authorization") ? "présent" : "absent",
-        },
+        rawBody: raw.substring(0, 500),
+        decoded: decoded.substring(0, 500),
+        rawLength: raw.length,
       });
     }
 
@@ -51,18 +49,10 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
+    console.log("[generate-blog] contentType:", contentType);
+    console.log("[generate-blog] rawBody (200):", raw.substring(0, 200));
+    console.log("[generate-blog] decoded (200):", decoded.substring(0, 200));
 
-    // Retourne le debug dans la réponse (visible directement depuis Make.com)
-    return NextResponse.json({
-      debug: true,
-      contentType,
-      rawBody: raw.substring(0, 500),
-      decoded: decoded.substring(0, 500),
-      rawLength: raw.length,
-      decodedLength: decoded.length,
-    });
-
-    // eslint-disable-next-line no-unreachable
     const article = extractJson(decoded) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
