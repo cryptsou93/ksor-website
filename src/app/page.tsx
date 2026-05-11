@@ -95,9 +95,9 @@ const whyUs = [
 ];
 
 const clients = [
-  { name: "BRP", src: "/logos/brp.svg", width: 120, height: 48 },
-  { name: "Inneo 360", src: "/logos/inneo360.svg", width: 160, height: 48 },
-  { name: "Fives Group", src: "/logos/fives.svg", width: 150, height: 48 },
+  { name: "BRP", src: "/logos/brp.png", width: 80, height: 80 },
+  { name: "Inneo 360", src: "/logos/inneo360.jpg", width: 180, height: 60 },
+  { name: "Fives Group", src: "/logos/fives.png", width: 130, height: 100 },
 ];
 
 export default function HomePage() {
