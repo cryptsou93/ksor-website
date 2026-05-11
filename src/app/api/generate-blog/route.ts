@@ -58,15 +58,13 @@ export async function POST(request: NextRequest) {
     let article: Partial<BlogPost>;
     try {
       article = extractJson(content) as Partial<BlogPost>;
-    } catch {
+    } catch (e) {
       return NextResponse.json({
         debug: true,
-        error: "extractJson a échoué",
-        contentStart: content.substring(0, 300),
+        parseError: e instanceof Error ? e.message : String(e),
+        contentStart: content.substring(0, 200),
+        contentEnd: content.substring(content.length - 200),
         contentLength: content.length,
-        firstCharCode: content.charCodeAt(0),
-        rawStart: raw.substring(0, 300),
-        eqIndex,
       }, { status: 400 });
     }
 
