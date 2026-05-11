@@ -9,9 +9,18 @@ function getRedis() {
 }
 
 function extractJson(text: string): unknown {
+  // Essai direct d'abord
+  try { return JSON.parse(text); } catch {}
+
+  // Extrait via regex et retente
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Aucun objet JSON trouvé dans le contenu");
-  return JSON.parse(match[0]);
+  if (!match) throw new Error(`Pas de {} trouvé. Début: ${text.substring(0, 50)}`);
+
+  try {
+    return JSON.parse(match[0]);
+  } catch (e) {
+    throw new Error(`JSON invalide: ${e instanceof Error ? e.message : String(e)} | Fin: ${match[0].slice(-100)}`);
+  }
 }
 
 function sanitizeSlug(slug: string): string {
