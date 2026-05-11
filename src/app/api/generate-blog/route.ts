@@ -9,12 +9,9 @@ function getRedis() {
 }
 
 function extractJson(text: string): unknown {
-  // Retire les blocs markdown ```json ... ``` si présents
-  const cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("Aucun objet JSON trouvé dans le contenu");
-  return JSON.parse(cleaned.slice(start, end + 1));
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("Aucun objet JSON trouvé dans le contenu");
+  return JSON.parse(match[0]);
 }
 
 function sanitizeSlug(slug: string): string {
