@@ -42,7 +42,7 @@ export default function Footer() {
               et innovation technologique. Basé à Langon (33210), France.
             </p>
             <a
-              href="https://www.linkedin.com/company/ksor-industrie"
+              href="https://www.linkedin.com/in/damien-pinon-58449b30b/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-gray-400 hover:text-primary transition-colors text-sm"

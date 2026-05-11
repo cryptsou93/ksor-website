@@ -104,7 +104,7 @@ const jsonLd = {
   areaServed: ["France", "International", "Europe"],
   email: "contact@ksorindustrie.com",
   telephone: "+33668135171",
-  sameAs: ["https://www.linkedin.com/company/ksor-industrie"],
+  sameAs: ["https://www.linkedin.com/in/damien-pinon-58449b30b/"],
   knowsAbout: [
     "Conception 3D industrielle",
     "SolidWorks",

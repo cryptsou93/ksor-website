@@ -121,7 +121,7 @@ export default function ContactPage() {
 
               <div className="mt-8 pt-6 border-t border-border">
                 <a
-                  href="https://www.linkedin.com/company/ksor-industrie"
+                  href="https://www.linkedin.com/in/damien-pinon-58449b30b/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-[#555555] hover:text-primary transition-colors text-sm"
