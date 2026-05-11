@@ -35,13 +35,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
-
-    // Cas 1 : Make.com envoie { "raw": "texte brut Claude avec markdown éventuel" }
-    // Cas 2 : Make.com envoie directement l'objet article JSON
-    const article = (
-      typeof body.raw === "string" ? extractJson(body.raw) : body
-    ) as Partial<BlogPost>;
+    const raw = await request.text();
+    const article = extractJson(raw) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
       return NextResponse.json(
