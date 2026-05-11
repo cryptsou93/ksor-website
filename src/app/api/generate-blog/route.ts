@@ -32,14 +32,33 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const formData = await request.formData();
-    const raw = formData.get("content") as string;
+    const contentType = request.headers.get("content-type") ?? "non défini";
+    console.log("[generate-blog] Content-Type:", contentType);
+
+    // Lecture du body brut pour déboguer
+    const bodyText = await request.text();
+    console.log("[generate-blog] Body brut (256 premiers chars):", bodyText.slice(0, 256));
+
+    // Parsing form data depuis le texte brut
+    const params = new URLSearchParams(bodyText);
+    const allKeys = [...params.keys()];
+    console.log("[generate-blog] Champs reçus:", allKeys);
+    allKeys.forEach((k) => console.log(`[generate-blog]  ${k} =`, params.get(k)?.slice(0, 100)));
+
+    const raw = params.get("content") ?? "";
     if (!raw) {
       return NextResponse.json(
-        { success: false, message: "Champ 'content' manquant dans le form data" },
+        {
+          success: false,
+          message: "Champ 'content' manquant",
+          contentType,
+          champsRecus: allKeys,
+          bodyBrut: bodyText.slice(0, 500),
+        },
         { status: 400 }
       );
     }
+    console.log("[generate-blog] Contenu extrait (100 premiers chars):", raw.slice(0, 100));
     const article = extractJson(raw) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
