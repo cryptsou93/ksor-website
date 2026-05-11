@@ -77,6 +77,31 @@ export default function PolitiqueConfidentialitePage() {
           Pour exercer vos droits, contactez-nous à : contact@ksorindustrie.com
         </p>
 
+        <h2>Sous-traitants et transferts hors UE</h2>
+        <p>
+          Vos données transitent par les prestataires suivants dans le cadre du
+          traitement de vos formulaires :
+        </p>
+        <ul>
+          <li>
+            <strong className="text-white">Resend</strong> — service d&apos;envoi
+            d&apos;emails (serveurs aux États-Unis). Les données transmises sont
+            limitées aux informations saisies dans le formulaire. Resend est
+            soumis au DPF (Data Privacy Framework) UE–États-Unis.
+          </li>
+          <li>
+            <strong className="text-white">Vercel</strong> — hébergement du site
+            (serveurs aux États-Unis et en Europe). Vercel est certifié DPF
+            UE–États-Unis.
+          </li>
+        </ul>
+        <p>
+          Aucune donnée personnelle n&apos;est stockée dans une base de données
+          par KSOR Industrie. Les informations de vos formulaires sont
+          uniquement transmises par email à l&apos;adresse
+          contact@ksorindustrie.com.
+        </p>
+
         <h2>Cookies</h2>
         <p>
           Ce site n&apos;utilise pas de cookies de traçage ou de publicité.
