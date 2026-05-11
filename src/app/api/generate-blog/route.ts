@@ -69,7 +69,20 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = allFields.content;
-    const article = extractJson(decoded) as Partial<BlogPost>;
+
+    // Tente d'extraire le JSON — retourne le contenu brut si ça échoue
+    let article: Partial<BlogPost>;
+    try {
+      article = extractJson(decoded) as Partial<BlogPost>;
+    } catch {
+      return NextResponse.json({
+        debug: true,
+        message: "Impossible d'extraire le JSON du champ content",
+        contentField: decoded.substring(0, 1000),
+        contentLength: decoded.length,
+        allFields,
+      }, { status: 400 });
+    }
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
       return NextResponse.json(
