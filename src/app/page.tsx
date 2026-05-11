@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Layers,
@@ -93,23 +94,10 @@ const whyUs = [
   },
 ];
 
-// Témoignages illustratifs — à remplacer par de vrais retours clients
-const testimonials = [
-  {
-    text: "KSOR Industrie a pris en charge la conception 3D de notre pièce maîtresse sur SolidWorks. Livraison dans les délais, qualité irréprochable et vrai savoir-faire R&D.",
-    name: "Directeur technique",
-    company: "PME industrielle, secteur automobile",
-  },
-  {
-    text: "Du prototypage conceptuel au prototype fonctionnel, un suivi rigoureux et une vraie expertise en bureau d'études. Je recommande KSOR Industrie sans hésitation.",
-    name: "Responsable R&D",
-    company: "Startup deeptech, secteur médical",
-  },
-  {
-    text: "Mission de conception CATIA V5 rondement menée. Une réactivité exemplaire et une compréhension immédiate des contraintes industrielles.",
-    name: "Chef de projet",
-    company: "Groupe industriel, secteur aéronautique",
-  },
+const clients = [
+  { name: "BRP", src: "/logos/brp.svg", width: 120, height: 48 },
+  { name: "Inneo 360", src: "/logos/inneo360.svg", width: 160, height: 48 },
+  { name: "Fives Group", src: "/logos/fives.svg", width: 150, height: 48 },
 ];
 
 export default function HomePage() {
@@ -277,33 +265,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TÉMOIGNAGES ── fond sombre + cartes blanches */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="mb-12 text-center">
-          <span className="orange-line inline-block" />
-          <h2 className="section-title-dark">Ce que disent nos clients</h2>
-          <p className="section-subtitle-dark mx-auto">
-            Retours d&apos;expérience sur nos missions de bureau
-            d&apos;études R&amp;D
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <div key={i} className="card flex flex-col">
-              <div className="text-primary text-4xl font-black leading-none mb-4">
-                &ldquo;
+      {/* ── ILS NOUS ONT FAIT CONFIANCE ── */}
+      <section className="border-y border-border bg-background-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="mb-10 text-center">
+            <span className="orange-line inline-block" />
+            <h2 className="text-xl font-bold text-[#333333] tracking-tight">
+              Ils nous ont fait confiance
+            </h2>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-12 md:gap-20">
+            {clients.map((c) => (
+              <div key={c.name} className="opacity-60 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0">
+                <Image
+                  src={c.src}
+                  alt={c.name}
+                  width={c.width}
+                  height={c.height}
+                />
               </div>
-              <p className="text-[#555555] text-sm leading-relaxed mb-6 flex-1 italic">
-                {t.text}
-              </p>
-              <div className="border-t border-border pt-4">
-                <div className="text-[#333333] font-semibold text-sm">
-                  {t.name}
-                </div>
-                <div className="text-[#999999] text-xs">{t.company}</div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
