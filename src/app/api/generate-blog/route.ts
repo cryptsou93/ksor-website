@@ -41,32 +41,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Lecture du body brut — URLSearchParams casse sur les & dans le JSON
-    const buf = await request.arrayBuffer();
-    const raw = Buffer.from(buf).toString("utf-8");
-
-    // Split au premier = uniquement pour éviter de casser sur les & du contenu
-    const eqIndex = raw.indexOf("=");
-    if (eqIndex === -1) {
-      return NextResponse.json(
-        { success: false, message: "Format invalide : aucun champ form trouvé", rawBody: raw.substring(0, 200) },
-        { status: 400 }
-      );
-    }
-    const content = decodeURIComponent(raw.substring(eqIndex + 1).replace(/\+/g, " "));
-
-    let article: Partial<BlogPost>;
-    try {
-      article = extractJson(content) as Partial<BlogPost>;
-    } catch (e) {
-      return NextResponse.json({
-        debug: true,
-        parseError: e instanceof Error ? e.message : String(e),
-        contentStart: content.substring(0, 200),
-        contentEnd: content.substring(content.length - 200),
-        contentLength: content.length,
-      }, { status: 400 });
-    }
+    // Lit le body comme texte brut (text/plain depuis Make.com)
+    const text = await request.text();
+    const article = extractJson(text) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
       return NextResponse.json(
