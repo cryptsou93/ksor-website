@@ -32,19 +32,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Lecture du body brut — URLSearchParams casse sur les & dans le JSON
     const buf = await request.arrayBuffer();
     const raw = Buffer.from(buf).toString("utf-8");
 
-    // Parse le form-urlencoded et récupère le champ content sans troncature
-    const params = new URLSearchParams(raw);
-    const content = params.get("content") ?? "";
-
-    if (!content) {
+    // Split au premier = uniquement pour éviter de casser sur les & du contenu
+    const eqIndex = raw.indexOf("=");
+    if (eqIndex === -1) {
       return NextResponse.json(
-        { success: false, message: "Champ 'content' manquant", champsRecus: [...params.keys()] },
+        { success: false, message: "Format invalide : aucun champ form trouvé", rawBody: raw.substring(0, 200) },
         { status: 400 }
       );
     }
+    const content = decodeURIComponent(raw.substring(eqIndex + 1).replace(/\+/g, " "));
 
     const article = extractJson(content) as Partial<BlogPost>;
 
