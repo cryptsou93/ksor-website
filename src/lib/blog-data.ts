@@ -1,5 +1,4 @@
-import { readdir, readFile } from "fs/promises";
-import path from "path";
+import { Redis } from "@upstash/redis";
 
 export interface BlogPost {
   slug: string;
@@ -122,21 +121,25 @@ export function getBlogPost(slug: string): BlogPost | undefined {
   return blogPosts.find((post) => post.slug === slug);
 }
 
+function getRedis(): Redis | null {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return null;
+  }
+  return Redis.fromEnv();
+}
+
 export async function getDynamicBlogPosts(): Promise<BlogPost[]> {
   try {
-    const dir = path.join(process.cwd(), "public", "blog-posts");
-    const files = await readdir(dir);
-    const posts = await Promise.all(
-      files
-        .filter((f) => f.endsWith(".json"))
-        .map(async (f) => {
-          const raw = await readFile(path.join(dir, f), "utf-8");
-          return JSON.parse(raw) as BlogPost;
-        })
+    const redis = getRedis();
+    if (!redis) return [];
+
+    const slugs = await redis.zrange<string[]>("blog:index", 0, -1, { rev: true });
+    if (!slugs || slugs.length === 0) return [];
+
+    const posts = await redis.mget<(BlogPost | null)[]>(
+      ...slugs.map((s) => `blog:post:${s}`)
     );
-    return posts.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    return posts.filter((p): p is BlogPost => p !== null);
   } catch {
     return [];
   }
