@@ -51,7 +51,18 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
-    console.log("[generate-blog] decoded (200):", decoded.substring(0, 200));
+
+    // Retourne le debug dans la réponse (visible directement depuis Make.com)
+    return NextResponse.json({
+      debug: true,
+      contentType,
+      rawBody: raw.substring(0, 500),
+      decoded: decoded.substring(0, 500),
+      rawLength: raw.length,
+      decodedLength: decoded.length,
+    });
+
+    // eslint-disable-next-line no-unreachable
     const article = extractJson(decoded) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
