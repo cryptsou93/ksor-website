@@ -25,72 +25,32 @@ function sanitizeSlug(slug: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = request.headers.get("authorization");
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token || token !== process.env.BLOG_SECRET_TOKEN) {
+    return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
+  }
+
   try {
     const buf = await request.arrayBuffer();
     const raw = Buffer.from(buf).toString("utf-8");
-    const contentType = request.headers.get("content-type") ?? "";
 
-    // Mode debug sans auth — retourne rawBody + decoded pour inspecter Make.com
-    if (raw.includes("__debug__") || raw.trim() === "") {
-      const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
-      return NextResponse.json({
-        debug: true,
-        contentType,
-        rawBody: raw.substring(0, 500),
-        decoded: decoded.substring(0, 500),
-        rawLength: raw.length,
-      });
-    }
-
-    const auth = request.headers.get("authorization");
-    const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
-    if (!token || token !== process.env.BLOG_SECRET_TOKEN) {
-      return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
-    }
-
-    // Parse tous les champs form-urlencoded pour voir ce qu'envoie Make.com
+    // Parse le form-urlencoded et récupère le champ content sans troncature
     const params = new URLSearchParams(raw);
-    const allFields: Record<string, string> = {};
-    params.forEach((v, k) => { allFields[k] = v.substring(0, 200); });
+    const content = params.get("content") ?? "";
 
-    console.log("[generate-blog] contentType:", contentType);
-    console.log("[generate-blog] rawBody:", raw.substring(0, 300));
-    console.log("[generate-blog] champs:", JSON.stringify(Object.keys(allFields)));
-
-    // Retourne les champs reçus dans la réponse pour diagnostic Make.com
-    if (Object.keys(allFields).length === 0 || !allFields.content) {
-      return NextResponse.json({
-        debug: true,
-        message: "Champ 'content' absent — voici ce qui a été reçu",
-        contentType,
-        rawBody: raw.substring(0, 500),
-        champsRecus: allFields,
-      }, { status: 400 });
+    if (!content) {
+      return NextResponse.json(
+        { success: false, message: "Champ 'content' manquant", champsRecus: [...params.keys()] },
+        { status: 400 }
+      );
     }
 
-    const decoded = allFields.content;
-
-    // Tente d'extraire le JSON — retourne le contenu brut si ça échoue
-    let article: Partial<BlogPost>;
-    try {
-      article = extractJson(decoded) as Partial<BlogPost>;
-    } catch {
-      return NextResponse.json({
-        debug: true,
-        message: "Impossible d'extraire le JSON du champ content",
-        contentField: decoded.substring(0, 1000),
-        contentLength: decoded.length,
-        allFields,
-      }, { status: 400 });
-    }
+    const article = extractJson(content) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Champs requis manquants : title, excerpt, content, slug",
-          received: Object.keys(article),
-        },
+        { success: false, message: "Champs requis manquants : title, excerpt, content, slug", received: Object.keys(article) },
         { status: 400 }
       );
     }
@@ -122,10 +82,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("[generate-blog error]", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error instanceof Error ? error.message : "Erreur interne",
-      },
+      { success: false, message: error instanceof Error ? error.message : "Erreur interne" },
       { status: 500 }
     );
   }
