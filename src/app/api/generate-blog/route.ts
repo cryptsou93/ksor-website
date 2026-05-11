@@ -25,25 +25,29 @@ function sanitizeSlug(slug: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = request.headers.get("authorization");
-  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
-  if (!token || token !== process.env.BLOG_SECRET_TOKEN) {
-    return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
-  }
-
   try {
     const buf = await request.arrayBuffer();
     const raw = Buffer.from(buf).toString("utf-8");
     const contentType = request.headers.get("content-type") ?? "";
 
-    // Mode debug : retourne le body brut dans la réponse pour diagnostic Make.com
+    // Mode debug : pas d'auth requise, retourne le body brut pour diagnostic Make.com
     if (raw.includes("__debug__")) {
       return NextResponse.json({
         debug: true,
         contentType,
         rawBody: raw.substring(0, 1000),
         length: raw.length,
+        headers: {
+          "content-type": contentType,
+          authorization: request.headers.get("authorization") ? "présent" : "absent",
+        },
       });
+    }
+
+    const auth = request.headers.get("authorization");
+    const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+    if (!token || token !== process.env.BLOG_SECRET_TOKEN) {
+      return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
     }
 
     const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
