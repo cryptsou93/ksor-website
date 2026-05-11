@@ -34,7 +34,17 @@ export async function POST(request: NextRequest) {
   try {
     const buf = await request.arrayBuffer();
     const raw = Buffer.from(buf).toString("utf-8");
-    console.log("RAW BODY:", raw.substring(0, 500));
+    const contentType = request.headers.get("content-type") ?? "";
+
+    // Mode debug : retourne le body brut dans la réponse pour diagnostic Make.com
+    if (raw.includes("__debug__")) {
+      return NextResponse.json({
+        debug: true,
+        contentType,
+        rawBody: raw.substring(0, 1000),
+        length: raw.length,
+      });
+    }
 
     const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
     const article = extractJson(decoded) as Partial<BlogPost>;
