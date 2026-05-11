@@ -32,7 +32,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const raw = await request.text();
+    const formData = await request.formData();
+    const raw = formData.get("content") as string;
+    if (!raw) {
+      return NextResponse.json(
+        { success: false, message: "Champ 'content' manquant dans le form data" },
+        { status: 400 }
+      );
+    }
     const article = extractJson(raw) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
