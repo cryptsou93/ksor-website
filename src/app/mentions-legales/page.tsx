@@ -24,7 +24,7 @@ export default function MentionsLegalesPage() {
           <br />
           Téléphone : +33 6 68 13 51 71
           <br />
-          SIRET : [En cours d&apos;immatriculation]
+          SIRET : 893 467 852 00024
         </p>
 
         <h2>Hébergement</h2>
