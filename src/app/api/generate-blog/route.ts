@@ -48,11 +48,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
     }
 
-    const decoded = decodeURIComponent(raw.replace(/^content=/, ""));
-    console.log("[generate-blog] contentType:", contentType);
-    console.log("[generate-blog] rawBody (200):", raw.substring(0, 200));
-    console.log("[generate-blog] decoded (200):", decoded.substring(0, 200));
+    // Parse tous les champs form-urlencoded pour voir ce qu'envoie Make.com
+    const params = new URLSearchParams(raw);
+    const allFields: Record<string, string> = {};
+    params.forEach((v, k) => { allFields[k] = v.substring(0, 200); });
 
+    console.log("[generate-blog] contentType:", contentType);
+    console.log("[generate-blog] rawBody:", raw.substring(0, 300));
+    console.log("[generate-blog] champs:", JSON.stringify(Object.keys(allFields)));
+
+    // Retourne les champs reçus dans la réponse pour diagnostic Make.com
+    if (Object.keys(allFields).length === 0 || !allFields.content) {
+      return NextResponse.json({
+        debug: true,
+        message: "Champ 'content' absent — voici ce qui a été reçu",
+        contentType,
+        rawBody: raw.substring(0, 500),
+        champsRecus: allFields,
+      }, { status: 400 });
+    }
+
+    const decoded = allFields.content;
     const article = extractJson(decoded) as Partial<BlogPost>;
 
     if (!article.title || !article.content || !article.slug || !article.excerpt) {
